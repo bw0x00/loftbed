@@ -3,8 +3,7 @@
 */
 // Render Precision
 $fn                     =   80;
-// board_ID counter for CSV output
-board_id                =   0;
+// config of csv out via echo
 csv_sep                 =   ";";
 // colors for model
 color_carrier           =   "Blue";
@@ -12,13 +11,15 @@ color_placeholder       =   "Yellow";
 color_placeholder_soft  =   "Orange";
 
 /*
-Dimension definitions
+Dimension definitions; Designed for multiplex
 */
 board_thick             =   30;
 board_medium            =   21;
+board_thin              =   10;
 
 // dimensions of loftbed
 entry_height            =   2000;    // distance floor to upper surface of the mattress
+entry_width             =   500;
 bedrail_height          =   250;     // hight of rail above lying_surface
 
 
@@ -55,7 +56,7 @@ module board(size=[1,1,1], center=false) {
         );
     cube(size,center);
     s_size = quicksort(size);
-    echo(str("CSV:",board_id,csv_sep,s_size[0],csv_sep,s_size[1],csv_sep,s_size[2]));
+    echo(str("CSV:",s_size[0],csv_sep,s_size[1],csv_sep,s_size[2]));
 }
 
 // Draw a slatted frame and a mattress
@@ -69,7 +70,7 @@ module framecarrier() {
     length = carrier_total_length; 
     width = carrier_total_width;
 
-    for (i=[0,1,1]){
+    for (i=[0,1]){
         // carrier element
         translate([0,board_medium+i*(width-carrier_board_width-board_medium),0])
             board([length,carrier_board_width,board_thick]);
@@ -77,8 +78,24 @@ module framecarrier() {
         translate([i*(length-board_medium),board_medium,board_thick])
             board([board_medium,width-board_medium,bedrail_height+lying_surface_height]);
         // rail element sides
-        translate([0,i*(width),0])
-           board([length,board_medium,bedrail_height+lying_surface_height+board_thick]);
+        difference() {
+            translate([0,i*(width),0])
+                board([length,board_medium,bedrail_height+lying_surface_height+board_thick]);
+        
+            r = 100;
+            translate([ board_thick+board_medium,
+                        carrier_total_width+entry_width/2,
+                        r+board_thick+lying_surface_height-mattress_height/2]) {
+                rotate([90,0,0]){
+                    union(){
+                        cube([entry_width,entry_width,entry_width]);
+                        translate([r,-r,0]) cube([entry_width-2*r,entry_width-2*r,entry_width]);
+                        translate([entry_width-r,0,0]) cylinder(entry_width,r=r);
+                        translate([r,0,0]) cylinder(entry_width,r=r);
+                    }
+                }
+            }
+        }
     }
 }
 
