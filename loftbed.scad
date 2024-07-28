@@ -39,7 +39,8 @@ lying_surface_length    =   slattedframe_length + tolerance_slattedframe;
 carrier_board_width     =   100;
 carrier_height          =   entry_height - lying_surface_height;
 carrier_total_width     =   lying_surface_width+2*board_medium;
-carrier_total_length    =   lying_surface_length+2*board_medium;;
+carrier_total_length    =   lying_surface_length+2*board_medium;
+rail_overhang           =   10;
 
 /*
     Generats a cube and prints the sizes as CSV output via echo. 
@@ -79,8 +80,8 @@ module framecarrier() {
             board([board_medium,width-board_medium,bedrail_height+lying_surface_height]);
         // rail element sides
         difference() {
-            translate([0,i*(width),-10])
-                board([length,board_medium,bedrail_height+lying_surface_height+board_thick+10]);
+            translate([0,i*(width),-rail_overhang])
+                board([length,board_medium,bedrail_height+lying_surface_height+board_thick+rail_overhang]);
         
             r = 100;
             t = board_medium+10;
@@ -102,11 +103,17 @@ module framecarrier() {
 
 module posts() {
     module post() {
-        translate([50,board_medium,0])
+        translate([(carrier_board_width-board_thick)/2,board_medium,0])
             board([board_thick,carrier_board_width,carrier_height-board_thick]);
+        translate([0,0,0])
+            board([carrier_board_width,board_medium,carrier_height-board_thick-rail_overhang]);    
+//        translate([0,board_medium+carrier_board_width,0])
+//            board([carrier_board_width,board_medium,carrier_height-board_thick+rail_overhang]);
         
     }
-    post();
+    for(i=[0,1])
+        translate([50+i*(carrier_total_length-carrier_board_width-2*50),0,0]) post();
+    
 }
 
 color(color_carrier)
