@@ -79,19 +79,20 @@ module framecarrier() {
             board([board_medium,width-board_medium,bedrail_height+lying_surface_height]);
         // rail element sides
         difference() {
-            translate([0,i*(width),0])
-                board([length,board_medium,bedrail_height+lying_surface_height+board_thick]);
+            translate([0,i*(width),-10])
+                board([length,board_medium,bedrail_height+lying_surface_height+board_thick+10]);
         
             r = 100;
+            t = board_medium+10;
             translate([ board_thick+board_medium,
-                        carrier_total_width+entry_width/2,
+                        carrier_total_width+board_medium+5,
                         r+board_thick+lying_surface_height-mattress_height/2]) {
                 rotate([90,0,0]){
                     union(){
-                        cube([entry_width,entry_width,entry_width]);
-                        translate([r,-r,0]) cube([entry_width-2*r,entry_width-2*r,entry_width]);
-                        translate([entry_width-r,0,0]) cylinder(entry_width,r=r);
-                        translate([r,0,0]) cylinder(entry_width,r=r);
+                        cube([entry_width,entry_width,t]);
+                        translate([r,-r,0]) cube([entry_width-2*r,entry_width-2*r,t]);
+                        translate([entry_width-r,0,0]) cylinder(t,r=r);
+                        translate([r,0,0]) cylinder(t,r=r);
                     }
                 }
             }
@@ -99,5 +100,16 @@ module framecarrier() {
     }
 }
 
+module posts() {
+    module post() {
+        translate([50,board_medium,0])
+            board([board_thick,carrier_board_width,carrier_height-board_thick]);
+        
+    }
+    post();
+}
+
 color(color_carrier)
-    translate([0,0,carrier_height-board_medium]) framecarrier();
+    translate([0,0,carrier_height-board_thick]) framecarrier();
+
+color("Red") posts();
