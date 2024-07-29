@@ -2,9 +2,7 @@
     Variables and globals
 */
 // Render Precision
-$fn                     =   80;
-// config of csv out via echo
-csv_sep                 =   ";";
+$fn                     =   100;
 // colors for model
 color_carrier           =   "Blue";
 color_placeholder       =   "Yellow";
@@ -18,9 +16,7 @@ board_medium            =   21;
 board_thin              =   10;
 
 // dimensions of loftbed
-entry_height            =   2000;    // distance floor to upper surface of the mattress
-entry_width             =   500;
-bedrail_height          =   250;     // hight of rail above lying_surface
+bed_height              =   2000;    // distance floor to upper surface of the mattress
 
 
 // space for slatted frame and mattress
@@ -30,76 +26,36 @@ mattress_length         =   2000;
 slattedframe_height     =   80;
 slattedframe_width      =   1200;
 slattedframe_length     =   2000;
-tolerance_slattedframe  =   10;
+tolerance_slattedframe  =   5;
 lying_surface_height    =   slattedframe_height + mattress_height;
 lying_surface_width     =   slattedframe_width + tolerance_slattedframe;
 lying_surface_length    =   slattedframe_length + tolerance_slattedframe;
 
 // dimensions slatted frame carrier
 carrier_board_width     =   100;
-carrier_height          =   entry_height - lying_surface_height;
+carrier_positionZ       =   bed_height - lying_surface_height;
 carrier_total_width     =   lying_surface_width+2*board_medium;
 carrier_total_length    =   lying_surface_length+2*board_medium;
+bedrail_height          =   250;    // hight of rail above lying_surface
+entry_width             =   500;    // width of the entry cutout
+entry_height            =   300;    // depth of coutout for entry from top level of rail
+entry_radius            =   100;
 rail_overhang           =   10;
 
 /*
     Generats a cube and prints the sizes as CSV output via echo. 
     For output, dimensons are sorted to represent a horizontal board.
 */
-module board(size=[1,1,1], center=false) {
-    function quicksort(arr) = !(len(arr)>0) ? [] : let(
-        pivot   = arr[floor(len(arr)/2)],
-        lesser  = [ for (y = arr) if (y  < pivot) y ],
-        equal   = [ for (y = arr) if (y == pivot) y ],
-        greater = [ for (y = arr) if (y  > pivot) y ]
-        ) concat(
-            quicksort(lesser), equal, quicksort(greater)
-        );
-    cube(size,center);
-    s_size = quicksort(size);
-    echo(str("CSV:",s_size[0],csv_sep,s_size[1],csv_sep,s_size[2]));
-}
+use <modules/board.scad>
 
 // Draw a slatted frame and a mattress
-use <dummy_lying_surface.scad>
+use <parts/dummy_lying_surface.scad>
 
-translate([board_medium+tolerance_slattedframe/2,board_medium+tolerance_slattedframe/2,carrier_height])
+translate([board_medium+tolerance_slattedframe/2,board_medium+tolerance_slattedframe/2,carrier_positionZ])
     lying_surface([slattedframe_length,slattedframe_width,slattedframe_height],color_placeholder,
                   [mattress_length,mattress_width,mattress_height],color_placeholder_soft);
 
-module framecarrier() {
-    length = carrier_total_length; 
-    width = carrier_total_width;
-
-    for (i=[0,1]){
-        // carrier element
-        translate([0,board_medium+i*(width-carrier_board_width-board_medium),0])
-            board([length,carrier_board_width,board_thick]);
-        // rail element head and foot
-        translate([i*(length-board_medium),board_medium,board_thick])
-            board([board_medium,width-board_medium,bedrail_height+lying_surface_height]);
-        // rail element sides
-        difference() {
-            translate([0,i*(width),-rail_overhang])
-                board([length,board_medium,bedrail_height+lying_surface_height+board_thick+rail_overhang]);
-        
-            r = 100;
-            t = board_medium+10;
-            translate([ board_thick+board_medium,
-                        carrier_total_width+board_medium+5,
-                        r+board_thick+lying_surface_height-mattress_height/2]) {
-                rotate([90,0,0]){
-                    union(){
-                        cube([entry_width,entry_width,t]);
-                        translate([r,-r,0]) cube([entry_width-2*r,entry_width-2*r,t]);
-                        translate([entry_width-r,0,0]) cylinder(t,r=r);
-                        translate([r,0,0]) cylinder(t,r=r);
-                    }
-                }
-            }
-        }
-    }
-}
+use <parts/framecarrier.scad>
 
 module posts() {
     module post() {
@@ -116,7 +72,10 @@ module posts() {
     
 }
 
-color(color_carrier)
-    translate([0,0,carrier_height-board_thick]) framecarrier();
+//color(color_carrier)
+translate([0,0,carrier_positionZ-board_thick])
+    framecarrier(   [lying_surface_length,lying_surface_width,lying_surface_height+bedrail_height],
+                    [entry_width,entry_height,entry_radius],
+                    carrier_board_width,board_thick,board_medium,rail_overhang);
 
-color("Red") posts();
+// color("Red") posts();
