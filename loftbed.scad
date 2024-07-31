@@ -47,6 +47,7 @@ rail_overhang           =   10;
     For output, dimensons are sorted to represent a horizontal board.
 */
 use <modules/board.scad>
+use <modules/pattern.scad>
 
 // Draw a slatted frame and a mattress
 use <parts/dummy_lying_surface.scad>
@@ -72,10 +73,16 @@ module posts() {
     
 }
 
-//color(color_carrier)
+color(color_carrier)
 translate([0,0,carrier_positionZ-board_thick])
     framecarrier(   [lying_surface_length,lying_surface_width,lying_surface_height+bedrail_height],
                     [entry_width,entry_height,entry_radius],
                     carrier_board_width,board_thick,board_medium,rail_overhang);
 
+// test pattern for side rails
+difference(){
+    cube([2000,1200,board_medium]);
+    pattern_two_triangle([500,1200,board_medium],40);
+}
+// TODO
 // color("Red") posts();

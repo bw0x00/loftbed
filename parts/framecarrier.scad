@@ -46,7 +46,7 @@ module entry_rail(length,height,board_thickness,entrydimension,entryposition){
         rotate([-90,0,0]){
             translate([entryposition[0],-(height+sp),-sp]){
                 color("red")
-                union(){
+                #union(){
                     cube([entry_w,entry_h+sp-entry_r,board_thickness+2*sp]);
                     translate([entry_r,entry_h-entry_r,0]) 
                         cube([  entry_w-2*entry_r,
