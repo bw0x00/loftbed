@@ -39,7 +39,7 @@ carrier_total_length    =   lying_surface_length+2*board_medium;
 bedrail_height          =   250;    // hight of rail above lying_surface
 entry_width             =   500;    // width of the entry cutout
 entry_height            =   300;    // depth of coutout for entry from top level of rail
-entry_radius            =   100;
+entry_radius            =   50;
 rail_overhang           =   10;
 
 /*
@@ -56,8 +56,19 @@ translate([board_medium+tolerance_slattedframe/2,board_medium+tolerance_slattedf
     lying_surface([slattedframe_length,slattedframe_width,slattedframe_height],color_placeholder,
                   [mattress_length,mattress_width,mattress_height],color_placeholder_soft);
 
+// the bad as if it would be placed on the floor without the loft
 use <parts/framecarrier.scad>
 
+color(color_carrier)
+translate([0,0,carrier_positionZ-board_thick])
+    framecarrier(   [lying_surface_length,lying_surface_width,lying_surface_height+bedrail_height],
+                    [entry_width,entry_height,entry_radius],
+                    carrier_board_width,board_thick,board_medium,rail_overhang);
+
+
+
+
+// TODO: move into seperate file
 module posts() {
     module post() {
         translate([(carrier_board_width-board_thick)/2,board_medium,0])
@@ -73,16 +84,5 @@ module posts() {
     
 }
 
-color(color_carrier)
-translate([0,0,carrier_positionZ-board_thick])
-    framecarrier(   [lying_surface_length,lying_surface_width,lying_surface_height+bedrail_height],
-                    [entry_width,entry_height,entry_radius],
-                    carrier_board_width,board_thick,board_medium,rail_overhang);
-
-// test pattern for side rails
-difference(){
-    cube([2000,1200,board_medium]);
-    pattern_two_triangle([500,1200,board_medium],40);
-}
-// TODO
+// TODO: move into seperate file
 // color("Red") posts();

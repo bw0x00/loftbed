@@ -15,17 +15,31 @@ module pattern_two_triangle(size,r) {
     translate([0,0,-sp/2]) {
         #linear_extrude(height=h){
             hull(){
-                translate([2*r          ,2*r+dist   ,0]) circle(r);             
-                translate([2*r          ,w-2*r      ,0]) circle(r);
-                translate([l-2*r-dist   ,w-2*r      ,0]) circle(r);
+                translate([r          ,r+dist   ,0]) circle(r);             
+                translate([r          ,w-r      ,0]) circle(r);
+                translate([l-r-dist   ,w-r      ,0]) circle(r);
             }
             hull(){
-                translate([2*r+dist     ,2*r        ,0]) circle(r);             
-                translate([l-2*r        ,2*r        ,0]) circle(r);
-                translate([l-2*r        ,w-2*r-dist ,0]) circle(r);
+                translate([r+dist     ,r        ,0]) circle(r);             
+                translate([l-r        ,r        ,0]) circle(r);
+                translate([l-r        ,w-r-dist ,0]) circle(r);
             }
         }
     }
+}
 
+/*
+	Fill a rectangle with pattern_elements repetitions of pattern_two_triange
+*/
+module rectangle_pattern_filled(pattern_w,pattern_h,pattern_thickness,pattern_boarder,pattern_elements){
+    pattern_subelement_w = (pattern_w-(pattern_elements-1)*pattern_boarder)/pattern_elements;
+	sp = 0.2;
 
+    for(i=[0:pattern_elements-1]) {
+    	translate([i*pattern_subelement_w+i%2*pattern_subelement_w+i*pattern_boarder,0,0])
+        	mirror([i%2,0,0])
+            	pattern_two_triangle([pattern_subelement_w,
+                                      pattern_h,pattern_thickness+sp],
+                	                  pattern_boarder/2);
+	}
 }
