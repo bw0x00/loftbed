@@ -2,7 +2,7 @@
     Variables and globals
 */
 // Render Precision
-$fn                     =   100;
+$fn                     =   50;
 // colors for model
 color_carrier           =   "Blue";
 color_placeholder       =   "Yellow";
