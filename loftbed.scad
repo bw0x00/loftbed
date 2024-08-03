@@ -40,6 +40,7 @@ bedrail_height              =   250;    // hight of rail above lying_surface
 entry_width                 =   500;    // width of the entry cutout
 entry_height                =   300;    // depth of coutout for entry from top level of rail
 entry_radius                =   50;
+entry_positionZ             =   carrier_positionZ+lying_surface_height;
 rail_overhang               =   10;
 
 // dimension of structure
@@ -78,8 +79,9 @@ translate([0,0,carrier_positionZ])
 
 
 use <parts/structure.scad>
-
-scaffolding([structure_width,structure_depth,structure_height],
-            [post_width,post_depth,post_height],
-            rail_overhang,board_thick,board_medium); 
+translate([structure_offset,0,0])
+    scaffolding([structure_width,structure_depth-structure_carrier_tolerance,structure_height],
+                [post_width,post_depth,post_height],
+                [entry_width,entry_height],entry_positionZ,
+                rail_overhang,board_thick,board_medium); 
 
